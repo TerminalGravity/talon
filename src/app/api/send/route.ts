@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 
 const GATEWAY_URL = process.env.GATEWAY_URL || 'http://localhost:6820'
+const GATEWAY_TOKEN = process.env.GATEWAY_TOKEN || ''
 
 export async function POST(request: NextRequest) {
   try {
@@ -16,11 +17,12 @@ export async function POST(request: NextRequest) {
     }
     
     // Send to gateway
+    const headers: Record<string, string> = { 'Content-Type': 'application/json' }
+    if (GATEWAY_TOKEN) headers['Authorization'] = `Bearer ${GATEWAY_TOKEN}`
+    
     const res = await fetch(`${GATEWAY_URL}/api/sessions/send`, {
       method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
+      headers,
       body: JSON.stringify({
         agentId,
         sessionKey,

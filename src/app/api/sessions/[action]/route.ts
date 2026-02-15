@@ -1,6 +1,13 @@
 import { NextRequest, NextResponse } from 'next/server'
 
 const GATEWAY_URL = process.env.GATEWAY_URL || 'http://localhost:6820'
+const GATEWAY_TOKEN = process.env.GATEWAY_TOKEN || ''
+
+function getHeaders() {
+  const headers: Record<string, string> = { 'Content-Type': 'application/json' }
+  if (GATEWAY_TOKEN) headers['Authorization'] = `Bearer ${GATEWAY_TOKEN}`
+  return headers
+}
 
 type Params = { params: Promise<{ action: string }> }
 
@@ -25,6 +32,7 @@ export async function GET(request: NextRequest, { params }: Params) {
         
         const res = await fetch(`${GATEWAY_URL}/api/sessions?${query}`, {
           cache: 'no-store',
+          headers: getHeaders(),
         })
         
         if (!res.ok) return NextResponse.json({ sessions: [] })
@@ -45,6 +53,7 @@ export async function GET(request: NextRequest, { params }: Params) {
         
         const res = await fetch(`${GATEWAY_URL}/api/sessions/history?${query}`, {
           cache: 'no-store',
+          headers: getHeaders(),
         })
         
         if (!res.ok) return NextResponse.json({ messages: [] })
@@ -57,6 +66,7 @@ export async function GET(request: NextRequest, { params }: Params) {
         
         const res = await fetch(`${GATEWAY_URL}/api/session/status${query}`, {
           cache: 'no-store',
+          headers: getHeaders(),
         })
         
         if (!res.ok) return NextResponse.json({})
@@ -88,7 +98,7 @@ export async function POST(request: NextRequest, { params }: Params) {
         
         const res = await fetch(`${GATEWAY_URL}/api/sessions/send`, {
           method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
+          headers: getHeaders(),
           body: JSON.stringify({ sessionKey, agentId, label, message, timeoutSeconds }),
         })
         
@@ -108,7 +118,7 @@ export async function POST(request: NextRequest, { params }: Params) {
         
         const res = await fetch(`${GATEWAY_URL}/api/sessions/spawn`, {
           method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
+          headers: getHeaders(),
           body: JSON.stringify({ task, agentId, label, model, thinking, runTimeoutSeconds, cleanup }),
         })
         
